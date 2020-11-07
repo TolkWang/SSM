@@ -1,0 +1,254 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="cn.wt.dao.EmployeeDao">
+
+    <resultMap id="myemployee" type="Employee">
+        <id property="id" column="id"></id>
+        <result property="empname" column="empname"></result>
+        <result property="email" column="email"></result>
+        <result property="gender" column="gender"></result>
+    </resultMap>
+
+    <resultMap id="myemployee2" type="Employee">
+        <id property="id" column="id"></id>
+        <result property="empname" column="empname"></result>
+        <result property="email" column="email"></result>
+        <result property="gender" column="gender"></result>
+        <result property="home.homename" column="homename"></result>
+    </resultMap>
+
+    <resultMap id="myemployee3" type="Employee">
+        <id property="id" column="id"></id>
+        <result property="empname" column="empname"></result>
+        <result property="email" column="email"></result>
+        <result property="gender" column="gender"></result>
+        <association property="home" javaType="cn.wt.domain.Home">
+            <id property="id" column="hid"></id>
+            <result property="homename" column="homename"></result>
+        </association>
+    </resultMap>
+
+    <resultMap id="myemployee4" type="Employee">
+        <id property="id" column="id"></id>
+        <result property="empname" column="empname"></result>
+        <result property="email" column="email"></result>
+        <result property="gender" column="gender"></result>
+        <collection property="books" ofType="cn.wt.domain.Book">
+            <id property="id" column="bid"></id>
+            <result property="bookname" column="bookname"></result>
+        </collection>
+    </resultMap>
+
+    <!--分步查询-->
+    <resultMap id="myemployee5" type="Employee">
+        <id property="id" column="id"></id>
+        <result property="empname" column="empname"></result>
+        <result property="email" column="email"></result>
+        <result property="gender" column="gender"></result>
+        <association property="home" select="getSimpleHome" column="id">
+            <id property="id" column="id"></id>
+            <result property="homename" column="homename"></result>
+        </association>
+    </resultMap>
+
+    <resultMap id="myemployee6" type="Employee">
+        <id property="id" column="id"></id>
+        <result property="empname" column="empname"></result>
+        <result property="email" column="email"></result>
+        <result property="gender" column="gender"></result>
+        <collection property="books" select="getSimpleBook" column="id">
+            <id property="id" column="bid"></id>
+            <result property="bookname" column="bookname"></result>
+        </collection>
+    </resultMap>
+
+    <!--增删改不用写返回值类型,mybatis会自动判断-->
+    <update id="updateEmployee">
+        update t_employee set empname=#{empname},gender=#{gender},email=#{email} where id=#{id}
+    </update>
+
+    <delete id="deleteEmployee">
+        delete from t_employee where id = #{id}
+    </delete>
+
+    <insert id="insertEmployee" useGeneratedKeys="true" keyProperty="id">
+        insert into t_employee (empname,gender,email) values (#{empname},#{gender},#{email})
+    </insert>
+
+    <!--非自增情况处理-->
+    <insert id="insertEmployee2">
+        <selectKey order="BEFORE" resultType="integer" keyProperty="id">
+            select max(id)+1 from t_employee
+        </selectKey>
+        insert into t_employee (id,empname,gender,email) values (#{id},#{empname},#{gender},#{email})
+    </insert>
+
+    <select id="getEmpById" resultType="Employee">
+        select id,empname,email,gender from t_employee where id = #{id}
+    </select>
+
+    <select id="getEmpByIdAndName" resultType="Employee">
+        select id,empname,email,gender from t_employee where id = #{id} and empname = #{name}
+    </select>
+
+    <select id="getEmpByIdAndNameMap" resultType="Employee">
+        select id,empname,email,gender from ${tablename} where id = #{id} and empname = #{name}
+    </select>
+
+    <select id="getAllEmp" resultType="Employee">
+        select id,empname,email,gender from t_employee
+    </select>
+
+    <select id="getAllEmp2" resultType="map">
+        select id,empname,email,gender from t_employee where id = #{id}
+    </select>
+
+    <select id="getAllEmp3" resultType="Employee">
+        select id,empname,email,gender from t_employee
+    </select>
+
+    <select id="getEmpByIdResultMap" resultMap="myemployee">
+        select id,empname,email,gender from t_employee where id = #{id}
+    </select>
+
+    <select id="getEmpAndHomeById" resultMap="myemployee3">
+        SELECT
+        e.id,e.email,e.empname,e.gender, h.homename, h.id as hid
+        FROM
+        t_employee e
+        LEFT JOIN t_home h ON e.id = h.employeeID
+        WHERE
+        e.id = #{id}
+    </select>
+
+    <select id="getEmpAndBooksById" resultMap="myemployee4">
+        SELECT
+        e.id,
+        e.email,
+        e.empname,
+        e.gender,
+        b.id AS bid,
+        b.bookname
+        FROM
+        t_employee e
+        LEFT JOIN t_book b ON e.id = b.employeeid
+        WHERE
+        e.id > #{id}
+    </select>
+
+    <select id="getEmpAndHomeById2" resultMap="myemployee5">
+        select id,empname,email,gender from t_employee where id = #{id}
+    </select>
+
+    <select id="getEmpAndBookById2" resultMap="myemployee6">
+        select id,empname,email,gender from t_employee where id = #{id}
+    </select>
+
+    <select id="getSimpleHome" resultType="cn.wt.domain.Home">
+        select id,homename from t_home where employeeid = #{employeeid}
+    </select>
+
+    <select id="getSimpleBook" resultType="cn.wt.domain.Book">
+        select id,bookname from t_book where employeeid = #{employeeid}
+    </select>
+
+    <resultMap id="myemployee7" type="Employee">
+        <id property="id" column="id"></id>
+        <result property="empname" column="empname"></result>
+        <result property="email" column="email"></result>
+        <result property="gender" column="gender"></result>
+    </resultMap>
+
+    <select id="getEmpById2" resultMap="myemployee7">
+        select id,empname,email,gender from t_employee where id = #{id}
+    </select>
+
+    <!--    动态sql-->
+
+    <select id="getEmpByCondition" resultMap="myemployee7">
+        select id,empname,email,gender from t_employee
+        <where>
+            <if test="id!=null">
+                id > #{id}
+            </if>
+            <if test="empname!=null and !empname.equals('')">
+                and empname like #{empname}
+            </if>
+            <if test="email!=null">
+                and email like #{email}
+            </if>
+        </where>
+        order by id
+    </select>
+
+    <select id="getEmpByCondition2" resultMap="myemployee7">
+        select id,empname,email,gender from t_employee
+        <trim prefix="where" prefixOverrides="and" suffixOverrides="and">
+            <if test="id!=null">
+                id > #{id}
+            </if>
+            <if test="empname!=null and !empname.equals('')">
+                and empname like #{empname}
+            </if>
+            <if test="email!=null">
+                and email like #{email}
+            </if>
+        </trim>
+        order by id
+    </select>
+
+    <select id="getEmpByConditionIn" resultMap="myemployee7">
+        select id,empname,email,gender from t_employee
+        <if test="ids.size > 0">
+            where id in
+            <foreach collection="ids" item="id_item" separator="," open="(" close=")">
+                #{id_item}
+            </foreach>
+        </if>
+    </select>
+
+    <sql id="selectEmpname">
+        select id,empname,email,gender from t_employee
+    </sql>
+
+    <select id="getEmpByCondition3" resultMap="myemployee7">
+        <include refid="selectEmpname"></include>
+        <where>
+            <choose>
+                <when test="id!=null">
+                    id > #{id}
+                </when>
+                <when test="empname!=null and !empname.equals('')">
+                    empname like #{empname}
+                </when>
+                <when test="email!=null">
+                    email like #{email}
+                </when>
+                <otherwise>
+                    1 = 1
+                </otherwise>
+            </choose>
+        </where>
+        order by id
+    </select>
+
+    <update id="updateEmployee2">
+        update t_employee
+        <set>
+            <if test="empname!=null and !empname.equals('')">
+                empname=#{empname},
+            </if>
+            <if test="email!=null">
+                email=#{email},
+            </if>
+        </set>
+        <where>
+            id=#{id}
+        </where>
+    </update>
+
+
+</mapper>
